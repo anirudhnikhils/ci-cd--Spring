@@ -16,7 +16,7 @@ pipeline {
   stage('maven build'){
     steps{
       echo'maven build started'
-	  bat 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
+	  sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
 	  echo 'maven build completed'
     }
   }
