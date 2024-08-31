@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "spring-boot-app.fullname" . }}
+  labels:
+    {{- include "spring-boot-app.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "spring-boot-app.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "spring-boot-app.name" . }}
+    spec:
+      containers:
+        - name: {{ include "spring-boot-app.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}

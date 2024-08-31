@@ -1,0 +1,21 @@
+image:
+  repository: anirudhnikhil/spring
+  tag: "latest"  # Use "latest" or any tag you want to dynamically update
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  name: ""
+  path: /
+  className: ""
+  annotations: {}
+  hosts:
+    - host: nikhic.com  # Replace with your actual domain
+      paths:
+        - /
+  tls: []
