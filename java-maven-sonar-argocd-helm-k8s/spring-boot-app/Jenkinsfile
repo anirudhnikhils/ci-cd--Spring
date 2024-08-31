@@ -1,46 +1,54 @@
 pipeline {
-  agent any
-	tools{
-		maven 'Maven 3.x' // The name you provided in the Global Tool Configuration
-	}
+    agent any
 
-  stages {
-    stage('checkout'){
-      steps{
-        echo 'build started'
-           checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'jenkins-git', url: 'https://github.com/anirudhnikhils/ci-cd--Spring.git']])
-        echo'build completed'
-      }
+    tools {
+        maven 'Maven 3.x' // The name you provided in the Global Tool Configuration
     }
-  
-  stage('maven build'){
-    steps{
-    echo'maven build started'
-	bat 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
-	echo 'maven build completed'
+
+    environment {
+        DOCKER_IMAGE = "anirudhnikhil/spring:${BUILD_NUMBER}"  // Docker image name with build number
+        REGISTRY_CREDENTIALS = credentials('docker_cred')     // Docker credentials ID
     }
-  }
-  stage('mvn test'){
-  steps{
-    echo 'mvn test start'
-	bat 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn test'
-	echo 'maven test completed'
-	}
-  }
-  stage('dcker build and push'){
-    enviroment{
-	docker_image = "anirudhnikhil/spring:${BUILD_NUMBER}"
-	 REGISTRY_CREDENTIALS = credentials('docker_cred')
-	}
-	steps{
-	    script{
-	         bat 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && docker build -t ${docker_image}'
-	         dockerImage = docker.image("${docker_image}")
-	         docker.withRegistry('https://index.docker.io/v1/', "docker_cred"){
-	         dockerImage.push()
-			 }
-			}
-	}
-	
-  }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checkout started'
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], 
+                    userRemoteConfigs: [[credentialsId: 'jenkins-git', url: 'https://github.com/anirudhnikhils/ci-cd--Spring.git']]])
+                echo 'Checkout completed'
+            }
+        }
+      
+        stage('Maven Build') {
+            steps {
+                echo 'Maven build started'
+                bat 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
+                echo 'Maven build completed'
+            }
+        }
+      
+        stage('Maven Test') {
+            steps {
+                echo 'Maven test started'
+                bat 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn test'
+                echo 'Maven test completed'
+            }
+        }
+      
+        stage('Docker Build and Push') {
+            steps {
+                script {
+                    echo 'Docker build started'
+                    bat 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && docker build -t ${DOCKER_IMAGE} .'
+                    
+                    echo 'Docker push started'
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker_cred') {
+                        sh 'docker push ${DOCKER_IMAGE}'
+                    }
+                    echo 'Docker push completed'
+                }
+            }
+        }
+    }
 }
