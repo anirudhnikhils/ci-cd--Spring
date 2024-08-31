@@ -15,10 +15,32 @@ pipeline {
   
   stage('maven build'){
     steps{
-      echo'maven build started'
-	  sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
-	  echo 'maven build completed'
+    echo'maven build started'
+	bat 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
+	echo 'maven build completed'
     }
   }
+  stage('mvn test'){
+  steps{
+    echo 'mvn test start'
+	bat 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn test'
+	echo 'maven test completed'
+	}
+  }
+  stage('dcker build and push'){
+    enviroment{
+	docker_image = "anirudhnikhil/spring:${BUILD_NUMBER}"
+	 REGISTRY_CREDENTIALS = credentials('docker_cred')
+	}
+	steps{
+	    script{
+	         bat 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && docker build -t ${docker_image}
+	         dockerImage = docker.image("${docker_image}")
+	         docker.withRegistry('https://index.docker.io/v1/', "docker_cred"){
+	         dockerImage.push()
+		 }
+	    }
+	}
+	
   }
 }
