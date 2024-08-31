@@ -38,13 +38,11 @@ pipeline {
             steps {
                 script {
                     echo "Building Docker image with tag: ${docker_image}"
-                    bat 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && docker build -t ${docker_image} .'
-                    dockerImage = docker.image("${docker_image}")
-                    docker.withRegistry('https://index.docker.io/v1/', "docker_cred") {
-                        dockerImage.push()
-                        bat 'docker tag ${DOCKER_IMAGE} anirudhnikhil/spring:latest'
-                        bat 'docker push anirudhnikhil/spring:latest'
-                    }
+                    bat "cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && docker build -t ${docker_image} ."
+                    echo "Pushing Docker image with tag: ${docker_image}"
+                    bat "docker tag ${docker_image} anirudhnikhil/spring:latest"
+                    bat "docker push ${docker_image}"
+                    bat "docker push anirudhnikhil/spring:latest"
                 }
             }
         }
