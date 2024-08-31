@@ -1,0 +1,12 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('checkout'){
+      steps{
+        
+        git url:'https://github.com/anirudhnikhils/ci-cd--Spring.git',credentialsId:'github-tokens'
+      }
+    }
+  }
+}
