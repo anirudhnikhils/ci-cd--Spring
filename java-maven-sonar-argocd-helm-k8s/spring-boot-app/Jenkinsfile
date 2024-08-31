@@ -5,7 +5,7 @@ pipeline {
     stage('checkout'){
       steps{
         
-        git url:'https://github.com/anirudhnikhils/ci-cd--Spring.git',credentialsId:'github-tokens'
+        checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'jenkins-git', url: 'https://github.com/anirudhnikhils/ci-cd--Spring.git']])
       }
     }
   }
