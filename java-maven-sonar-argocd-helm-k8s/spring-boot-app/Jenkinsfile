@@ -52,6 +52,8 @@ pipeline {
                 script {
                     echo 'Helm deploy started'
                     // Ensure Helm is installed and available in the PATH
+                    bat 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app/
+                    bat 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app/spring-boot-app'
                     bat 'helm version'
                     // Update Helm repo
                     bat 'helm repo update'
